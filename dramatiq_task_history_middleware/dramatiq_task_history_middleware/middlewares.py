@@ -12,7 +12,6 @@ import dramatiq
 import pytz
 
 from dramatiq.middleware import Middleware
-from dramatiq_task_history_middleware.models import Task
 
 
 logger = logging.getLogger(__name__)
@@ -22,6 +21,9 @@ class TaskHistoryMiddleware(Middleware):
     """Middleware that logs all messages received by actors."""
 
     def after_enqueue(self, broker, message: dramatiq.Message, delay):
+        from .models import Task
+
+        
         logger.info(
             "Enqueued message for actor %s with args %s and kwargs %s",
             message.actor_name,
@@ -41,6 +43,8 @@ class TaskHistoryMiddleware(Middleware):
         return message
 
     def before_process_message(self, broker, message: dramatiq.Message):
+        from .models import Task
+        
         """Log the message before it's processed."""
         logger.info(
             "Received message for actor %s with args %s and kwargs %s",
@@ -56,6 +60,8 @@ class TaskHistoryMiddleware(Middleware):
         return message
     
     def after_process_message(self, broker, message: dramatiq.Message, *, result=None, exception=None):
+        from .models import Task
+        
         """Log the message after it's processed."""
         if exception:
             logger.error(
