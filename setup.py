@@ -6,7 +6,7 @@ setup(
     package_dir={"": "dramatiq_task_history_middleware"},
     packages=find_packages(where="dramatiq_task_history_middleware"),
     install_requires=[
-        "django>=4.2.0",
+        "django>=3.0.0",
         "dramatiq>=1.12.0",
     ],
     author="Ahmet Can Ogreten",
