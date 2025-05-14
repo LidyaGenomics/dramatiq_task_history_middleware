@@ -19,6 +19,16 @@ logger = logging.getLogger(__name__)
 
 class TaskHistoryMiddleware(Middleware):
     """Middleware that logs all messages received by actors."""
+    
+    def before_enqueue(self, broker, message, delay):
+        # Add your custom options here
+        message.options["my_custom_option"] = "my_custom_value"
+        
+        # You can also access other message attributes if needed
+        # For example, to add an option based on the actor name:
+        # message.options[f"{message.actor_name}_processed"] = False
+
+        return super().before_enqueue(broker, message, delay)
 
     def after_enqueue(self, broker, message: dramatiq.Message, delay):
         from .models import Task
