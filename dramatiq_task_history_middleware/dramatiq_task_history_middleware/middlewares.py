@@ -21,12 +21,24 @@ class TaskHistoryMiddleware(Middleware):
     """Middleware that logs all messages received by actors."""
     
     def before_enqueue(self, broker, message, delay):
-        # Add your custom options here
-        message.options["my_custom_option"] = "my_custom_value"
+        from dramatiq.middleware import CurrentMessage
         
-        # You can also access other message attributes if needed
-        # For example, to add an option based on the actor name:
-        # message.options[f"{message.actor_name}_processed"] = False
+        current_message = CurrentMessage.get_current_message()
+        
+        # # Add your custom options here
+        # pipeline_id = message.options["pipeline_id"]
+        # organization_id = message.options["organization_id"]
+
+        # if not pipeline_id and not organization_id:
+        #     return super().before_enqueue(broker, message, delay)
+        
+        # if pipeline_id:
+        #     message.options["pipeline_id"] = pipeline_id
+            
+        
+        # # You can also access other message attributes if needed
+        # # For example, to add an option based on the actor name:
+        # # message.options[f"{message.actor_name}_processed"] = False
 
         return super().before_enqueue(broker, message, delay)
 
