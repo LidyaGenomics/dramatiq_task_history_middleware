@@ -26,6 +26,7 @@ class TaskHistoryMiddleware(Middleware):
         if not current_message:
             # initial message stem from the backend
             from .models import Pipeline
+            import uuid
             
             organization_id = message.options.get("options", {}).get("organization_id")
             organization_name = message.options.get("options", {}).get("organization_name")
@@ -36,7 +37,11 @@ class TaskHistoryMiddleware(Middleware):
             file_name_1 = message.options.get("options", {}).get("file_name_1") 
             file_name_2 = message.options.get("options", {}).get("file_name_2")
             
+            # generate a random uuid for the pipeline
+            pipeline_id = str(uuid.uuid4())
+            
             pipeline = Pipeline.objects.create(
+                id=pipeline_id,
                 organization_id=organization_id,
                 organization_name=organization_name,
                 person_id=person_id,
