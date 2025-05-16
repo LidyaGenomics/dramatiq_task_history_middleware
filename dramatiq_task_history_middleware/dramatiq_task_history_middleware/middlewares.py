@@ -36,14 +36,31 @@ class TaskHistoryMiddleware(Middleware):
             message.options["options"]["pipeline_id"] = pipeline_id
             
         if organization_id:
+            from .models import Pipeline
+            
+            organization_id = message.options.get("options", {}).get("organization_id")
+            organization_name = message.options.get("options", {}).get("organization_name")
+            
+            person_id = message.options.get("options", {}).get("person_id")
+            person_name = message.options.get("options", {}).get("person_name")
+            
+            file_name_1 = message.options.get("options", {}).get("file_name_1") 
+            file_name_2 = message.options.get("options", {}).get("file_name_2")
+            
+            pipeline = Pipeline.objects.create(
+                organization_id=organization_id,
+                organization_name=organization_name,
+                person_id=person_id,
+                person_name=person_name,
+                file_name_1=file_name_1,
+                file_name_2=file_name_2,
+            )
+            
             # merge current_message.options with message.options
             if "options" not in message.options:
                 message.options["options"] = {}
-            if "options" not in current_message.options:
-                current_message.options["options"] = {}
-        
 
-            message.options["options"] = {**current_message.options["options"], **message.options["options"]}
+            message.options["options"]["pipeline_id"] = pipeline.id
 
         return super().before_enqueue(broker, message, delay)
 
