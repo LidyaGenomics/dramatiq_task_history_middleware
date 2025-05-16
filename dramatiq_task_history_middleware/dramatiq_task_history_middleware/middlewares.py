@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class TaskHistoryMiddleware(Middleware):
     """Middleware that logs all messages received by actors."""
     
-    def before_enqueue(self, broker, message, delay):
+    def before_enqueue(self, broker, message: dramatiq.Message, delay):
         current_message = CurrentMessage.get_current_message()
         
         if not current_message:
@@ -57,17 +57,17 @@ class TaskHistoryMiddleware(Middleware):
             message.options["options"]["pipeline_id"] = pipeline.id
         else:
             # intermediate message stem from the worker
-            pipeline_id = message.options.get("options", {}).get("pipeline_id")
+            pipeline_id = current_message.options.get("options", {}).get("pipeline_id")
 
             if not pipeline_id:
                 logger.info("No pipeline_id or organization_id found in message options")
-                return super().before_enqueue(broker, message, delay)
+                return message
             
             if "options" not in message.options:
                 message.options["options"] = {}
             message.options["options"]["pipeline_id"] = pipeline_id
                 
-        return super().before_enqueue(broker, message, delay)
+        return message
 
     def after_enqueue(self, broker, message: dramatiq.Message, delay):
         from .models import Task

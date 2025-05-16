@@ -1,19 +1,5 @@
 from django.db import models
 
-class Task(models.Model):
-    id = models.UUIDField(primary_key=True)
-    queue_name = models.CharField(max_length=255)
-    actor_name = models.CharField(max_length=255)
-    message_json = models.JSONField()
-    
-    enqueued_at = models.DateTimeField(auto_now_add=True)
-    started_at = models.DateTimeField(null=True, blank=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
-    
-    state = models.CharField(max_length=255, choices=[('enqueued', 'Enqueued'), ('started', 'Started'), ('completed', 'Completed'), ('failed', 'Failed')])
-    
-    pipeline = models.OneToOneField('Pipeline', on_delete=models.CASCADE, null=True, blank=True)
-    
 class Pipeline(models.Model):
     id = models.UUIDField(primary_key=True)
     
@@ -27,3 +13,18 @@ class Pipeline(models.Model):
     file_name_2 = models.CharField(max_length=255, null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Task(models.Model):
+    id = models.UUIDField(primary_key=True)
+    queue_name = models.CharField(max_length=255)
+    actor_name = models.CharField(max_length=255)
+    message_json = models.JSONField()
+    
+    enqueued_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    state = models.CharField(max_length=255, choices=[('enqueued', 'Enqueued'), ('started', 'Started'), ('completed', 'Completed'), ('failed', 'Failed')])
+    
+    pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE)
+    
