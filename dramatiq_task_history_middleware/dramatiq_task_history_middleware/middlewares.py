@@ -23,19 +23,8 @@ class TaskHistoryMiddleware(Middleware):
     def before_enqueue(self, broker, message, delay):
         current_message = CurrentMessage.get_current_message()
         
-        pipeline_id = message.options.get("options", {}).get("pipeline_id")
-        organization_id = message.options.get("options", {}).get("organization_id")
-
-        if not pipeline_id and not organization_id:
-            logger.info("No pipeline_id or organization_id found in message options")
-            return super().before_enqueue(broker, message, delay)
-        
-        if pipeline_id:
-            if "options" not in message.options:
-                message.options["options"] = {}
-            message.options["options"]["pipeline_id"] = pipeline_id
-            
-        if organization_id:
+        if not current_message:
+            # initial message stem from the backend
             from .models import Pipeline
             
             organization_id = message.options.get("options", {}).get("organization_id")
@@ -61,7 +50,18 @@ class TaskHistoryMiddleware(Middleware):
                 message.options["options"] = {}
 
             message.options["options"]["pipeline_id"] = pipeline.id
+        else:
+            # intermediate message stem from the worker
+            pipeline_id = message.options.get("options", {}).get("pipeline_id")
 
+            if not pipeline_id:
+                logger.info("No pipeline_id or organization_id found in message options")
+                return super().before_enqueue(broker, message, delay)
+            
+            if "options" not in message.options:
+                message.options["options"] = {}
+            message.options["options"]["pipeline_id"] = pipeline_id
+                
         return super().before_enqueue(broker, message, delay)
 
     def after_enqueue(self, broker, message: dramatiq.Message, delay):
