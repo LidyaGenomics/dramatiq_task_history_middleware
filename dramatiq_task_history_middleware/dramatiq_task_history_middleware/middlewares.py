@@ -23,19 +23,27 @@ class TaskHistoryMiddleware(Middleware):
     def before_enqueue(self, broker, message, delay):
         current_message = CurrentMessage.get_current_message()
         
-        pipeline_id = message.options["pipeline_id"]
-        organization_id = message.options["organization_id"]
+        pipeline_id = message.options.get("options", {}).get("pipeline_id")
+        organization_id = message.options.get("options", {}).get("organization_id")
 
         if not pipeline_id and not organization_id:
             logger.info("No pipeline_id or organization_id found in message options")
             return super().before_enqueue(broker, message, delay)
         
         if pipeline_id:
-            message.options["pipeline_id"] = pipeline_id
+            if "options" not in message.options:
+                message.options["options"] = {}
+            message.options["options"]["pipeline_id"] = pipeline_id
             
         if organization_id:
             # merge current_message.options with message.options
-            message.options = {**current_message.options, **message.options}
+            if "options" not in message.options:
+                message.options["options"] = {}
+            if "options" not in current_message.options:
+                current_message.options["options"] = {}
+        
+
+            message.options["options"] = {**current_message.options["options"], **message.options["options"]}
 
         return super().before_enqueue(broker, message, delay)
 
@@ -51,7 +59,7 @@ class TaskHistoryMiddleware(Middleware):
         )
         
         from .models import Pipeline
-        pipeline = Pipeline.objects.get(id=message.options.get("pipeline_id"))
+        pipeline = Pipeline.objects.get(id=message.options.get("options", {}).get("pipeline_id"))
 
         Task.objects.create(
             id=message.options.get("redis_message_id"),
