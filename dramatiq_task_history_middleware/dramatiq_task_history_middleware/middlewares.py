@@ -11,7 +11,8 @@ import datetime
 import dramatiq
 import pytz
 
-from dramatiq.middleware import Middleware
+from dramatiq.middleware import Middleware, CurrentMessage
+from .models import Pipeline
 
 
 logger = logging.getLogger(__name__)
@@ -21,24 +22,21 @@ class TaskHistoryMiddleware(Middleware):
     """Middleware that logs all messages received by actors."""
     
     def before_enqueue(self, broker, message, delay):
-        from dramatiq.middleware import CurrentMessage
-        
         current_message = CurrentMessage.get_current_message()
         
-        # # Add your custom options here
-        # pipeline_id = message.options["pipeline_id"]
-        # organization_id = message.options["organization_id"]
+        pipeline_id = message.options["pipeline_id"]
+        organization_id = message.options["organization_id"]
 
-        # if not pipeline_id and not organization_id:
-        #     return super().before_enqueue(broker, message, delay)
+        if not pipeline_id and not organization_id:
+            logger.info("No pipeline_id or organization_id found in message options")
+            return super().before_enqueue(broker, message, delay)
         
-        # if pipeline_id:
-        #     message.options["pipeline_id"] = pipeline_id
+        if pipeline_id:
+            message.options["pipeline_id"] = pipeline_id
             
-        
-        # # You can also access other message attributes if needed
-        # # For example, to add an option based on the actor name:
-        # # message.options[f"{message.actor_name}_processed"] = False
+        if organization_id:
+            # merge current_message.options with message.options
+            message.options = {**current_message.options, **message.options}
 
         return super().before_enqueue(broker, message, delay)
 
@@ -53,13 +51,16 @@ class TaskHistoryMiddleware(Middleware):
             message.kwargs
         )
 
+        pipeline = Pipeline.objects.get(id=message.options.get("pipeline_id"))
+
         Task.objects.create(
             id=message.options.get("redis_message_id"),
             queue_name=message.queue_name,
             actor_name=message.actor_name,
             message_json=message.asdict(),
             enqueued_at=datetime.datetime.now(pytz.timezone('Europe/Istanbul')),
-            state="enqueued"
+            state="enqueued",
+            pipeline=pipeline
         )
 
         return message

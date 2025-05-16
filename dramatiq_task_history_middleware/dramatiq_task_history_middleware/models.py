@@ -11,3 +11,19 @@ class Task(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     
     state = models.CharField(max_length=255, choices=[('enqueued', 'Enqueued'), ('started', 'Started'), ('completed', 'Completed'), ('failed', 'Failed')])
+    
+    pipeline = models.OneToOneField('Pipeline', on_delete=models.CASCADE, null=True, blank=True)
+    
+class Pipeline(models.Model):
+    id = models.UUIDField(primary_key=True)
+    
+    organization_id = models.CharField(max_length=255)
+    organization_name = models.CharField(max_length=255)
+    
+    person_id = models.CharField(max_length=255)
+    person_name = models.CharField(max_length=255)
+    
+    file_name_1 = models.CharField(max_length=255)
+    file_name_2 = models.CharField(max_length=255)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
