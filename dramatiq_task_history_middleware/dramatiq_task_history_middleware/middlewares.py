@@ -12,7 +12,6 @@ import dramatiq
 import pytz
 
 from dramatiq.middleware import Middleware, CurrentMessage
-from .models import Pipeline
 
 
 logger = logging.getLogger(__name__)
@@ -50,7 +49,8 @@ class TaskHistoryMiddleware(Middleware):
             message.args,
             message.kwargs
         )
-
+        
+        from .models import Pipeline
         pipeline = Pipeline.objects.get(id=message.options.get("pipeline_id"))
 
         Task.objects.create(
