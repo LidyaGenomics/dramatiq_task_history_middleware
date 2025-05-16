@@ -76,8 +76,9 @@ class TaskHistoryMiddleware(Middleware):
         )
         
         from .models import Pipeline
-        pipeline = Pipeline.objects.get(id=message.options.get("options", {}).get("pipeline_id"))
-
+        pipeline_id = message.options.get("options", {}).get("pipeline_id")
+        pipeline = Pipeline.objects.get(id=pipeline_id)
+        
         Task.objects.create(
             id=message.options.get("redis_message_id"),
             queue_name=message.queue_name,

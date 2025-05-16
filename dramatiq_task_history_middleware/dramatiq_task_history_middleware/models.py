@@ -17,13 +17,13 @@ class Task(models.Model):
 class Pipeline(models.Model):
     id = models.UUIDField(primary_key=True)
     
-    organization_id = models.CharField(max_length=255)
+    organization_id = models.UUIDField()
     organization_name = models.CharField(max_length=255)
     
-    person_id = models.CharField(max_length=255)
+    person_id = models.UUIDField()
     person_name = models.CharField(max_length=255)
     
-    file_name_1 = models.CharField(max_length=255)
-    file_name_2 = models.CharField(max_length=255)
+    file_name_1 = models.CharField(max_length=255, null=True, blank=True)
+    file_name_2 = models.CharField(max_length=255, null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
