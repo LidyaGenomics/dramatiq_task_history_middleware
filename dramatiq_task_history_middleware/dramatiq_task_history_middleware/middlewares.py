@@ -29,6 +29,11 @@ class TaskHistoryMiddleware(Middleware):
             import uuid
             
             organization_id = message.options.get("options", {}).get("organization_id")
+            
+            if not organization_id:
+                logger.info("No organization_id found in message options. Probably not a pipeline processing message.")
+                return message
+            
             organization_name = message.options.get("options", {}).get("organization_name")
             
             person_id = message.options.get("options", {}).get("person_id")
@@ -82,6 +87,11 @@ class TaskHistoryMiddleware(Middleware):
         
         from .models import Pipeline
         pipeline_id = message.options.get("options", {}).get("pipeline_id")
+        
+        if not pipeline_id:
+            logger.info("No pipeline_id found in message options. Probably not a pipeline processing message.")
+            return message
+        
         pipeline = Pipeline.objects.get(id=pipeline_id)
         
         Task.objects.create(
@@ -108,6 +118,11 @@ class TaskHistoryMiddleware(Middleware):
         )
 
         task = Task.objects.get(id=message.options.get("redis_message_id"))
+        
+        if not task:
+            logger.info("No task found for message. Probably not a pipeline processing message.")
+            return message
+        
         task.started_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
         task.status = "started"
         task.save()
@@ -124,6 +139,11 @@ class TaskHistoryMiddleware(Middleware):
                 str(exception)
             )
             task = Task.objects.get(id=message.options.get("redis_message_id"))
+            
+            if not task:
+                logger.info("Failed to process message. No task found for message. Probably not a pipeline processing message.")
+                return message
+            
             task.state = "failed"
             task.completed_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
             task.save()
@@ -133,6 +153,11 @@ class TaskHistoryMiddleware(Middleware):
                 message.actor_name
             )
             task = Task.objects.get(id=message.options.get("redis_message_id"))
+            
+            if not task:
+                logger.info("Successfully processed message. No task found for message. Probably not a pipeline processing message.")
+                return message
+            
             task.state = "completed"
             task.completed_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
             task.save()
