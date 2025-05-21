@@ -1,6 +1,12 @@
 from django.db import models
 
 class Pipeline(models.Model):
+    STATUS_CHOICES = [
+        ('processing', 'Processing'),
+        ('failed', 'Failed'),
+        ('success', 'Success')
+    ]
+
     id = models.UUIDField(primary_key=True)
     
     organization_id = models.UUIDField()
@@ -13,6 +19,23 @@ class Pipeline(models.Model):
     file_name_2 = models.CharField(max_length=255, null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def status(self):
+        tasks = self.task_set.all()
+        if not tasks.exists():
+            return 'processing'
+            
+        # Check if any tasks are still processing
+        if tasks.filter(state__in=['enqueued', 'started']).exists():
+            return 'processing'
+            
+        # Check if any tasks failed
+        if tasks.filter(state='failed').exists():
+            return 'failed'
+            
+        # If all tasks are completed
+        return 'success'
 
 class Task(models.Model):
     id = models.UUIDField(primary_key=True)

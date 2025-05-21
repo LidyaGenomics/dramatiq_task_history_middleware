@@ -7,8 +7,18 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PipelineSerializer(serializers.ModelSerializer):
-    tasks = TaskSerializer(many=True, read_only=True)
+    status = serializers.CharField(read_only=True)
     
     class Meta:
         model = Pipeline
-        fields = '__all__' 
+        fields = [
+            'id',
+            'organization_id',
+            'organization_name',
+            'person_id',
+            'person_name',
+            'file_name_1',
+            'file_name_2',
+            'created_at',
+            'status',
+        ] 
