@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAdminUser
 from django_filters import rest_framework as filters
 from .models import Pipeline, Task
 from .serializers import PipelineSerializer, TaskSerializer
@@ -42,11 +43,13 @@ class PipelineViewSet(viewsets.ModelViewSet):
     serializer_class = PipelineSerializer
     pagination_class = StandardResultsSetPagination
     filterset_class = PipelineFilter
+    permission_classes = [IsAdminUser]
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     pagination_class = StandardResultsSetPagination
     filterset_class = TaskFilter
+    permission_classes = [IsAdminUser]
 
     def get_queryset(self):
         pipeline_id = self.kwargs.get('pipeline_pk')
