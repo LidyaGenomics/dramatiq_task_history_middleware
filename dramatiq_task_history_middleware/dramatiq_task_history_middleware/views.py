@@ -67,7 +67,8 @@ class PipelineViewSet(viewsets.ModelViewSet):
         'person_name',
         'file_name_1',
         'file_name_2',
-        'created_at'
+        'created_at',
+        'status'
     ]
     ordering = ['-created_at']  # default ordering
 

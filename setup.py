@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="dramatiq_task_history_middleware",
-    version="0.4.8",
+    version="0.4.9",
     package_dir={"": "dramatiq_task_history_middleware"},
     packages=find_packages(where="dramatiq_task_history_middleware"),
     install_requires=[
