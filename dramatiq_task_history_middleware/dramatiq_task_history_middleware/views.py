@@ -5,6 +5,7 @@ from django_filters import rest_framework as filters
 from rest_framework.filters import OrderingFilter
 from .models import Pipeline, Task
 from .serializers import PipelineSerializer, TaskSerializer
+from django.db.models import Case, When, Value, IntegerField
 
 # Create your views here.
 
@@ -66,9 +67,38 @@ class PipelineViewSet(viewsets.ModelViewSet):
         'person_name',
         'file_name_1',
         'file_name_2',
-        'created_at'
+        'created_at',
+        'status'
     ]
     ordering = ['-created_at']  # default ordering
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        ordering = self.request.query_params.get('ordering', '')
+        
+        if ordering:
+            if ordering == 'status':
+                return queryset.annotate(
+                    status_order=Case(
+                        When(task__state__in=['enqueued', 'started'], then=Value(1)),
+                        When(task__state='failed', then=Value(2)),
+                        When(task__state='completed', then=Value(3)),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                ).order_by('status_order')
+            elif ordering == '-status':
+                return queryset.annotate(
+                    status_order=Case(
+                        When(task__state__in=['enqueued', 'started'], then=Value(1)),
+                        When(task__state='failed', then=Value(2)),
+                        When(task__state='completed', then=Value(3)),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                ).order_by('-status_order')
+        
+        return queryset
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
