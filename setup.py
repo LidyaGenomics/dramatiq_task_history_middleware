@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="dramatiq_task_history_middleware",
-    version="0.4.12",
+    version="0.4.13",
     package_dir={"": "dramatiq_task_history_middleware"},
     packages=find_packages(where="dramatiq_task_history_middleware"),
     install_requires=[
@@ -11,7 +11,7 @@ setup(
         "djangorestframework>=3.15.0",
         "django-filter>=24",
         "drf-nested-routers>=0.90.2",
-        "psycopg2-binary==2.9.10",
+        "psycopg2>=2.9.1",
     ],
     author="Ahmet Can Ogreten",
     author_email="ahmetcan@lidyagenomics.com",
