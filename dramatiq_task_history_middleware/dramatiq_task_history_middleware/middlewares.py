@@ -125,7 +125,7 @@ class TaskHistoryMiddleware(Middleware):
         
         task.started_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
         task.queue_time = (task.started_at - task.enqueued_at).total_seconds() * 1000
-        task.status = "started"
+        task.state = "started"
         task.save()
         return message
     
