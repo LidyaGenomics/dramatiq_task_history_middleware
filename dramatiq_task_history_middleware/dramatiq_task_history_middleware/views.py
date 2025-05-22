@@ -76,7 +76,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         'started_at',
         'completed_at',
         'state',
-        'pipeline'
+        'pipeline',
+        'queue_time',
+        'processing_time'
     ]
     ordering = ['-enqueued_at']  # default ordering
 

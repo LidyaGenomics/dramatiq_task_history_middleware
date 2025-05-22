@@ -31,6 +31,9 @@ class Task(models.Model):
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     
+    queue_time = models.IntegerField(null=True, blank=True)
+    processing_time = models.IntegerField(null=True, blank=True)
+    
     state = models.CharField(max_length=255, choices=[('enqueued', 'Enqueued'), ('started', 'Started'), ('completed', 'Completed'), ('failed', 'Failed')])
     
     pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE)
