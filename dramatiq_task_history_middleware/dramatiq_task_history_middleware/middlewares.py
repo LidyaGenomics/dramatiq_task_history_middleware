@@ -129,7 +129,18 @@ class TaskHistoryMiddleware(Middleware):
         return message
     
     def after_process_message(self, broker, message: dramatiq.Message, *, result=None, exception=None):
-        from .models import Task
+        from .models import Task, Pipeline
+        
+        organization_id = message.options.get("options", {}).get("organization_id")
+        pipeline_id = message.options.get("options", {}).get("pipeline_id")
+        is_pipeline_start_task = False
+        if organization_id and pipeline_id:
+            is_pipeline_start_task = True
+            logger.info(
+                "Organization ID: %s, Pipeline ID: %s",
+                organization_id,
+                pipeline_id
+            )
         
         """Log the message after it's processed."""
         if exception:
@@ -147,6 +158,11 @@ class TaskHistoryMiddleware(Middleware):
             task.state = "failed"
             task.completed_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
             task.save()
+            
+            if is_pipeline_start_task:
+                pipeline = Pipeline.objects.get(id=pipeline_id)
+                pipeline.status = "failed"
+                pipeline.save()
         else:
             logger.info(
                 "Successfully processed message for actor %s",
@@ -161,4 +177,9 @@ class TaskHistoryMiddleware(Middleware):
             task.state = "completed"
             task.completed_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
             task.save()
+            
+            if is_pipeline_start_task:
+                pipeline = Pipeline.objects.get(id=pipeline_id)
+                pipeline.status = "success"
+                pipeline.save()
         return message 

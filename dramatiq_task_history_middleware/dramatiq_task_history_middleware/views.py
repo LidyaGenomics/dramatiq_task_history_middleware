@@ -19,7 +19,7 @@ class PipelineFilter(filters.FilterSet):
     person_id = filters.UUIDFilter()
     created_at_after = filters.DateTimeFilter(field_name='created_at', lookup_expr='gte')
     created_at_before = filters.DateTimeFilter(field_name='created_at', lookup_expr='lte')
-    status = filters.CharFilter(method='filter_by_status')
+    status = filters.CharFilter(field_name='status')
 
     class Meta:
         model = Pipeline
