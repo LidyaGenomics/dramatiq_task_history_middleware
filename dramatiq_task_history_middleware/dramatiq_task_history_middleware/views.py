@@ -25,17 +25,6 @@ class PipelineFilter(filters.FilterSet):
         model = Pipeline
         fields = ['organization_id', 'person_id', 'created_at', 'status']
 
-    def filter_by_status(self, queryset, name, value):
-        if value == 'processing':
-            return queryset.filter(task__state__in=['enqueued', 'started']).distinct()
-        elif value == 'failed':
-            return queryset.filter(task__state='failed').distinct()
-        elif value == 'success':
-            return queryset.exclude(
-                task__state__in=['enqueued', 'started', 'failed']
-            ).filter(task__state='completed').distinct()
-        return queryset
-
 class TaskFilter(filters.FilterSet):
     queue_name = filters.CharFilter(lookup_expr='icontains')
     actor_name = filters.CharFilter(lookup_expr='icontains')
