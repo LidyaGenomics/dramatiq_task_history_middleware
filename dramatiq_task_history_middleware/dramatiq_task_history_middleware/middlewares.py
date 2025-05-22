@@ -117,7 +117,7 @@ class TaskHistoryMiddleware(Middleware):
             message.kwargs
         )
 
-        task = Task.objects.get(id=message.options.get("redis_message_id"))
+        task = Task.objects.filter(id=message.options.get("redis_message_id")).first()
         
         if not task:
             logger.info("No task found for message. Probably not a pipeline processing message.")
@@ -138,7 +138,7 @@ class TaskHistoryMiddleware(Middleware):
                 message.actor_name,
                 str(exception)
             )
-            task = Task.objects.get(id=message.options.get("redis_message_id"))
+            task = Task.objects.filter(id=message.options.get("redis_message_id")).first()
             
             if not task:
                 logger.info("Failed to process message. No task found for message. Probably not a pipeline processing message.")
@@ -152,7 +152,7 @@ class TaskHistoryMiddleware(Middleware):
                 "Successfully processed message for actor %s",
                 message.actor_name
             )
-            task = Task.objects.get(id=message.options.get("redis_message_id"))
+            task = Task.objects.filter(id=message.options.get("redis_message_id")).first()
             
             if not task:
                 logger.info("Successfully processed message. No task found for message. Probably not a pipeline processing message.")
