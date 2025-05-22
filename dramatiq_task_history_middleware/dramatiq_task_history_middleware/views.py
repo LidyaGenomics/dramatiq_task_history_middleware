@@ -67,31 +67,9 @@ class PipelineViewSet(viewsets.ModelViewSet):
         'person_name',
         'file_name_1',
         'file_name_2',
-        'created_at',
-        'status'
+        'created_at'
     ]
     ordering = ['-created_at']  # default ordering
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        ordering = self.request.query_params.get('ordering', '')
-        
-        if ordering:
-            queryset = queryset.annotate(
-                status=Case(
-                    When(task__state__in=['enqueued', 'started'], then=Value(1)),
-                    When(task__state='failed', then=Value(2)),
-                    When(task__state='completed', then=Value(3)),
-                    default=Value(0),
-                    output_field=IntegerField(),
-                )
-            )
-            if ordering == 'status':
-                return queryset.order_by('status')
-            elif ordering == '-status':
-                return queryset.order_by('-status')
-        
-        return queryset
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
