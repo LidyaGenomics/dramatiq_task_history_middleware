@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name="dramatiq_task_history_middleware",
-    version="0.4.13",
+    version="0.4.14",
     package_dir={"": "dramatiq_task_history_middleware"},
     packages=find_packages(where="dramatiq_task_history_middleware"),
     install_requires=[
-        "django>=3.0.0",
+        "django>=4.0.0",
         "dramatiq>=1.12.0",
         "djangorestframework>=3.15.0",
         "django-filter>=24",
