@@ -124,7 +124,7 @@ class TaskHistoryMiddleware(Middleware):
             return message
         
         task.started_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
-        task.queue_time = (task.started_at - task.enqueued_at).total_seconds()
+        task.queue_time = (task.started_at - task.enqueued_at).total_seconds() * 1000
         task.status = "started"
         task.save()
         return message
@@ -158,7 +158,7 @@ class TaskHistoryMiddleware(Middleware):
             
             task.state = "failed"
             task.completed_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
-            task.processing_time = (task.completed_at - task.started_at).total_seconds()
+            task.processing_time = (task.completed_at - task.started_at).total_seconds() * 1000
             task.save()
             
             if is_pipeline_start_task:
@@ -178,7 +178,7 @@ class TaskHistoryMiddleware(Middleware):
             
             task.state = "completed"
             task.completed_at = datetime.datetime.now(pytz.timezone('Europe/Istanbul'))
-            task.processing_time = (task.completed_at - task.started_at).total_seconds()
+            task.processing_time = (task.completed_at - task.started_at).total_seconds() * 1000
             task.save()
             
             if is_pipeline_start_task:
